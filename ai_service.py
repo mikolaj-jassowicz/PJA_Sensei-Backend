@@ -1,37 +1,51 @@
 import os
 from dotenv import load_dotenv
-from google import genai
-from google.genai import types
+from openai import OpenAI
 
 
 load_dotenv()
 
+SYSTEM_PROMPT = """
+Jesteś nauczycielem sokratejskim.
+
+Nigdy nie podawaj gotowego rozwiązania.
+Zamiast tego:
+- naprowadzaj pytaniami,
+- wskazuj błędy,
+- sugeruj kolejny krok,
+- odpowiadaj po polsku.
+"""
 
 class PjaSenseiAI:
     def __init__(self):
-        self.client = genai.Client(
-            api_key=os.getenv("GEMINI_API_KEY")
+        self.client = OpenAI(
+        base_url="https://openrouter.ai/api/v1",
+        api_key=os.getenv("OPENROUTER_API_KEY")
         )
+        self.history = []
 
-    def generate_hint(self, prompt: str) -> str:
-        response = self.client.models.generate_content(
-            model="gemini-3.5-flash",
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                system_instruction="""
-                Jesteś nauczycielem sokratejskim.
+    def message_pja_sensei(self, prompt: str) -> str:
+        messages = [
+            {
+                "role": "system",
+                "content": SYSTEM_PROMPT
+            },
+            *self.history,
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
 
-                Student przekazuje:
-                - treść zadania,
-                - swoje dotychczasowe rozwiązanie,
-                - pytanie.
-
-                Zasady:
-                - odpowiadaj wyłącznie po polsku,
-                - dawaj wskazówki,
-                - nie podawaj gotowego rozwiązania.
-                """
-            ),
+        response = self.client.chat.completions.create(
+            model="deepseek/deepseek-chat",
+            messages=messages,
+            temperature=0.4,
+            max_tokens=500
         )
+            
+        answer = response.choices[0].message.content
+        self.history.append({"role": "user", "content": prompt})
+        self.history.append({"role": "assistant", "content": answer})
 
-        return response.text
+        return answer

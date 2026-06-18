@@ -1,34 +1,34 @@
-from pydantic import BaseModel
 from ai_service import PjaSenseiAI
 from fastapi import FastAPI
 
-app = FastAPI()
 
-ai = PjaSenseiAI()
+def discuss_a_problem():
+    ai = PjaSenseiAI()
 
-
-class HintRequest(BaseModel):
-    problem: str
-    progress: str
-    question: str
-
-
-@app.post("/hint")
-def get_hint(request: HintRequest):
+    problem = input("Podaj treść zadania: ")
+    progress = input("Podaj dotychczasowe rozwiązanie: ")
+    question = input("Podaj pytanie studenta: ")
 
     prompt = f"""
     Zadanie:
-    {request.problem}
+    {problem}
 
     Dotychczasowe rozwiązanie:
-    {request.progress}
+    {progress}
 
     Pytanie studenta:
-    {request.question}
+    {question}
     """
+    
+    print("\nPJASensei przetwarza Twoją wiadomość, za chwilę otrzymasz odpowiedź...\n")
+    pja_sensei_answer = ai.message_pja_sensei(prompt)
+    print(pja_sensei_answer)
 
-    hint = ai.generate_hint(prompt)
+    while True:
+        user_answer = input()
+        pja_sensei_answer = ai.message_pja_sensei(user_answer)
+        print(pja_sensei_answer)
 
-    return {
-        "hint": hint
-    }
+    
+if __name__ == "__main__":
+    discuss_a_problem()
