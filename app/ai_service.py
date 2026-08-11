@@ -22,15 +22,17 @@ class PjaSenseiAI:
         base_url="https://openrouter.ai/api/v1",
         api_key=os.getenv("OPENROUTER_API_KEY")
         )
-        self.history = []
+        self.conversations: dict[str, list[dict]] = {}
 
-    def message_pja_sensei(self, prompt: str) -> str:
+    def message_pja_sensei(self, conversation_id: str, prompt: str) -> str:
+        history = self.conversations.setdefault(conversation_id, [])
+
         messages = [
             {
                 "role": "system",
                 "content": SYSTEM_PROMPT
             },
-            *self.history,
+            *history,
             {
                 "role": "user",
                 "content": prompt
@@ -43,9 +45,13 @@ class PjaSenseiAI:
             temperature=0.4,
             max_tokens=500
         )
-            
+
         answer = response.choices[0].message.content
-        self.history.append({"role": "user", "content": prompt})
-        self.history.append({"role": "assistant", "content": answer})
+
+        if answer is None:
+            raise ValueError("Model nie zwrócił odpowiedzi. Spróbuj ponownie.")
+
+        history.append({"role": "user", "content": prompt})
+        history.append({"role": "assistant", "content": answer})
 
         return answer
