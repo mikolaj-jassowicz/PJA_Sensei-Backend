@@ -55,7 +55,7 @@ class PjaSenseiAI:
         ]
 
         response = self.client.chat.completions.create(
-            model="deepseek/deepseek-chat",
+            model="google/gemma-4-31b-it:free",
             messages=messages,
             temperature=0.4,
             max_tokens=500,
