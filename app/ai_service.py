@@ -8,14 +8,9 @@ from openai import OpenAI
 load_dotenv()
 
 SYSTEM_PROMPT = """
-Jesteś nauczycielem sokratejskim.
+Pomagasz studentowi w rozwiązywaniu zadań z programowania.
 
-Nigdy nie podawaj gotowego rozwiązania.
-Zamiast tego:
-- naprowadzaj pytaniami,
-- wskazuj błędy,
-- sugeruj kolejny krok,
-- odpowiadaj po polsku.
+Student poda Ci zadanie nad którym pracuje, oraz dotychczasowe rozwiązanie, jakie udało mu się stworzyć.
 """
 
 
