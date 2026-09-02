@@ -17,7 +17,6 @@ Student poda Ci zadanie nad którym pracuje, oraz dotychczasowe rozwiązanie, ja
 @dataclass
 class Conversation:
     problem: str
-    progress: str = ""
     messages: list[dict] = field(default_factory=list)
 
 
@@ -37,7 +36,7 @@ class PjaSenseiAI:
 
     def start_conversation(self, problem: str, progress: str = "") -> str:
         conversation_id = str(uuid.uuid4())
-        self.conversations[conversation_id] = Conversation(problem, progress)
+        self.conversations[conversation_id] = Conversation(problem=problem, messages=[{"role": "user", "content": f"Progress: {progress}"}])
         return conversation_id
 
     def send_message(
@@ -47,10 +46,7 @@ class PjaSenseiAI:
         if conversation is None:
             raise UnknownConversation(conversation_id)
 
-        if progress is not None:
-            conversation.progress = progress
-
-        conversation.messages.append({"role": "user", "content": question})
+        conversation.messages.append({"role": "user", "content": f"Progress: {progress}\nQuestion: {question}"})
 
         messages = [
             {"role": "system", "content": SYSTEM_PROMPT},
@@ -76,7 +72,4 @@ class PjaSenseiAI:
         return f"""
                 Zadanie, nad którym pracuje student:
                 {conversation.problem}
-
-                Aktualny stan jego rozwiązania:
-                {conversation.progress or "(student jeszcze nic nie napisał)"}
                 """
