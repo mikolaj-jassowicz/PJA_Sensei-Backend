@@ -3,15 +3,17 @@ from pydantic import BaseModel
 
 from app.ai_service import PjaSenseiAI, UnknownConversation
 
+# create FastAPI application instance and PjaSenseiAI instance
 app = FastAPI()
 ai = PjaSenseiAI()
 
 
+# data model for initial message to set the context for the AI model
 class StartRequest(BaseModel):
     problem: str
     progress: str = ""
 
-
+# data model for sending every next message after sending StartRequest
 class MessageRequest(BaseModel):
     question: str
     progress: str | None = None
